@@ -1,4 +1,4 @@
-// src/hooks/useAdvancedToggle.ts
+// src/index.ts
 import { useState } from "react";
 
 const useAdvancedToggle = <T>(states: T[]) => {

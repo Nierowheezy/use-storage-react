@@ -1,6 +1,6 @@
-// src/tests/useAdvancedToggle.test.ts
-import { renderHook, act } from "@testing-library/react";
-import useAdvancedToggle from "../hooks/useAdvancedToggle";
+// test/useAdvancedToggle.test.ts
+import { renderHook, act } from "@testing-library/react-hooks";
+import useAdvancedToggle from "../src/index"; // Updated import path
 
 describe("useAdvancedToggle", () => {
   it("should toggle between states", () => {
