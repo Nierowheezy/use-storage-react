@@ -8,6 +8,17 @@
     "strict": true,
     "esModuleInterop": true,
     "jsx": "react",
+    "types": ["jest", "node"],  // Include jest and node types for test files
+    "allowJs": true,  // Optional: allow JS files if you have JS tests
+    "moduleResolution": "node"
   },
-  "exclude": ["node_modules", "dist", "test"]
+  "include": [
+    "src/**/*",  // Include your source files
+    "test/**/*.ts",  // Include your test files for compilation
+    "test/**/*.tsx"  // If using JSX in your test files
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
