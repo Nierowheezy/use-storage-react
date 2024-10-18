@@ -1,16 +1,17 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",  // Consider using es6 or esnext if targeting modern browsers
     "module": "commonjs",
-    "lib": ["es2017", "es7", "es6", "dom"],
+    "lib": ["es2017", "es6", "dom"],
     "declaration": true,
     "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
-    "jsx": "react",
+    "jsx": "react-jsx",  // Use react-jsx for React 17+
     "types": ["jest", "node"],  // Include jest and node types for test files
     "allowJs": true,  // Optional: allow JS files if you have JS tests
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "skipLibCheck": true  // Optional: skip type checking for .d.ts files
   },
   "include": [
     "src/**/*",  // Include your source files
