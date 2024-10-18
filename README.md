@@ -2,7 +2,7 @@
 
 ![Version](https://img.shields.io/npm/v/use-storage-react) ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 
-🗄️ **React Storage Complete**  
+🗄️ **use-storage-react**  
 React hooks for accessing `localStorage` and `sessionStorage`, with syncing and prefix support. The complete package.  
 [View project on GitHub](https://github.com/Nierowheezy/use-storage-react) | ![Deploy Status](https://img.shields.io/badge/deploy-status-brightgreen)
 
@@ -20,10 +20,11 @@ React hooks for accessing `localStorage` and `sessionStorage`, with syncing and 
 6. [Examples](#examples)
    - [Example of Using `useLocalStorage`](#example-of-using-uselocalstorage)
    - [Example of Using `useSessionStorage`](#example-of-using-usesessionstorage)
-7. [Contributing](#contributing)
-8. [License](#license)
-9. [Author](#author)
-10. [Links](#links)
+7. [Testing](#testing)
+8. [Contributing](#contributing)
+9. [License](#license)
+10. [Author](#author)
+11. [Links](#links)
 
 ## Overview
 
@@ -34,7 +35,7 @@ React hooks for accessing `localStorage` and `sessionStorage`, with syncing and 
 - **Cross-Tab Synchronization**: Automatically syncs changes to state across different tabs/windows.
 - **Support for `localStorage` and `sessionStorage`**: Provides easy-to-use hooks for both types of storage.
 - **Customizable**: Easily configure initial values and storage events.
-- **TypeScript Support**: Fully typed with TypeScript for better development experience.
+- **TypeScript Support**: Fully typed with TypeScript for a better development experience.
 
 ## Installation
 
@@ -166,6 +167,55 @@ const SessionComponent = () => {
     </div>
   );
 };
+```
+
+## Testing
+
+To run tests for the `use-storage-react` hooks, ensure you have the testing dependencies installed:
+
+```bash
+npm install --save-dev @testing-library/react @testing-library/jest-dom
+```
+
+Then you can run your tests using:
+
+```bash
+npm test
+```
+
+### Example Test Case
+
+Here's an example of how you might test your hooks:
+
+```javascript
+import { renderHook, act } from '@testing-library/react-hooks';
+import { useLocalStorage } from '../src/useLocalstorage'; // Adjust the path as necessary
+
+describe('useLocalStorage', () => {
+  const key = 'testKey';
+
+  afterEach(() => {
+    localStorage.removeItem(key); // Clean up localStorage after each test
+  });
+
+  it('should initialize with the default value', () => {
+    const { result } = renderHook(() => useLocalStorage(key, 'defaultValue'));
+    expect(result.current[0]).toBe('defaultValue');
+  });
+
+  it('should update localStorage when state changes', () => {
+    const { result } = renderHook(() => useLocalStorage(key, 'defaultValue'));
+
+    act(() => {
+      result.current[1]('newValue'); // Set new value
+    });
+
+    expect(result.current[0]).toBe('newValue');
+    expect(localStorage.getItem(key)).toBe(JSON.stringify('newValue'));
+  });
+
+  // Additional tests...
+});
 ```
 
 ## Contributing
