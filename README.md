@@ -2,6 +2,29 @@
 
 ![Version](https://img.shields.io/npm/v/use-storage-react) ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 
+🗄️ **React Storage Complete**  
+React hooks for accessing `localStorage` and `sessionStorage`, with syncing and prefix support. The complete package.  
+[View project on GitHub](https://github.com/Nierowheezy/use-storage-react) | ![Deploy Status](https://img.shields.io/badge/deploy-status-brightgreen)
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Installation](#installation)
+4. [Usage](#usage)
+   - [Local Storage](#local-storage)
+   - [Session Storage](#session-storage)
+5. [API](#api)
+   - [`useLocalStorage`](#uselocalstorage)
+   - [`useSessionStorage`](#usesessionstorage)
+6. [Examples](#examples)
+   - [Example of Using `useLocalStorage`](#example-of-using-uselocalstorage)
+   - [Example of Using `useSessionStorage`](#example-of-using-usesessionstorage)
+7. [Contributing](#contributing)
+8. [License](#license)
+9. [Author](#author)
+10. [Links](#links)
+
 ## Overview
 
 `use-storage-react` is a custom React hook that simplifies the management of browser storage (both `localStorage` and `sessionStorage`) with automatic updates across documents and tabs. This package enables efficient state management in React applications, making it easy to persist state between sessions or tabs.

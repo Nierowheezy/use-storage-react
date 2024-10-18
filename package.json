@@ -1,5 +1,5 @@
 {
-  "name": "use-browser-storage",
+  "name": "use-storage-react",
   "version": "1.0.0",
   "description": "A custom React hook for managing localStorage and sessionStorage with ease, supporting cross-document and cross-tab updates.",
   "main": "dist/index.js",
@@ -23,12 +23,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Nierowheezy/use-browser-storage.git"
+    "url": "https://github.com/Nierowheezy/use-storage-react.git"
   },
   "bugs": {
-    "url": "https://github.com/Nierowheezy/use-browser-storage/issues"
+    "url": "https://github.com/Nierowheezy/use-storage-react/issues"
   },
-  "homepage": "https://github.com/Nierowheezy/use-browser-storage",
+  "homepage": "https://github.com/Nierowheezy/use-storage-react",
   "devDependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^12.1.5",

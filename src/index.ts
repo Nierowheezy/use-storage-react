@@ -1,2 +1,2 @@
-export { useLocalstorageState as useLocalStorage } from "./useLocalstorage";
-export { useSessionstorageState as useSessionStorage } from "./useSessionstorage";
+export { useLocalStorage } from "./useLocalstorage"; // Updated to match the correct hook name
+export { useSessionStorage } from "./useSessionstorage"; // Updated to match the correct hook name

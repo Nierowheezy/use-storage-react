@@ -46,7 +46,7 @@ function initialize<S>(key: string, initialState: S | (() => S)) {
   }
 }
 
-type UseLocalstorageStateReturnValue<S> = [
+type UseLocalStorageReturnValue<S> = [
   S,
   Dispatch<SetStateAction<S>>,
   () => void
@@ -54,17 +54,17 @@ type UseLocalstorageStateReturnValue<S> = [
 type BroadcastCustomEvent<S> = CustomEvent<{ newValue: S }>;
 
 /**
- * useLocalstorageState hook
+ * useLocalStorage hook
  * Tracks a value within localStorage and updates it
  *
  * @param {string} key - Key of the localStorage object
  * @param {any} initialState - Default initial value
  *
  */
-function useLocalstorageState<S>(
+function useLocalStorage<S>(
   key: string,
   initialState?: S | (() => S)
-): UseLocalstorageStateReturnValue<S> {
+): UseLocalStorageReturnValue<S> {
   const [value, setValue] = useState(() => initialize(key, initialState));
   const isUpdateFromCrossDocumentListener = useRef(false);
   const isUpdateFromWithinDocumentListener = useRef(false);
@@ -111,7 +111,7 @@ function useLocalstorageState<S>(
         );
       };
     } else {
-      console.warn("useLocalstorageState: window is undefined.");
+      console.warn("[useLocalStorage] window is undefined.");
       return () => {};
     }
   }, [listenToCrossDocumentStorageEvents]);
@@ -145,7 +145,7 @@ function useLocalstorageState<S>(
         );
       };
     } else {
-      console.warn("[useLocalstorageState] document is undefined.");
+      console.warn("[useLocalStorage] document is undefined.");
       return () => {};
     }
   }, [customEventTypeName, listenToCustomEventWithinDocument]);
@@ -159,7 +159,7 @@ function useLocalstorageState<S>(
         );
         document.dispatchEvent(event);
       } else {
-        console.warn("[useLocalstorageState] document is undefined.");
+        console.warn("[useLocalStorage] document is undefined.");
       }
     },
     [customEventTypeName]
@@ -187,4 +187,4 @@ function useLocalstorageState<S>(
   return [value, set, remove];
 }
 
-export { useLocalstorageState };
+export { useLocalStorage };

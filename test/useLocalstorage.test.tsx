@@ -1,5 +1,5 @@
 import { render, act } from "@testing-library/react";
-import { useLocalstorageState } from "../src/useLocalstorage"; // Adjust the path as necessary
+import { useLocalStorage } from "../src/useLocalstorage"; // Adjust the path as necessary
 import { useEffect } from "react";
 
 // Test component to use the hook
@@ -7,7 +7,7 @@ const TestComponent: React.FC<{
   localStorageKey: string;
   initialValue?: string;
 }> = ({ localStorageKey, initialValue }) => {
-  const [value, setValue, remove] = useLocalstorageState(
+  const [value, setValue, remove] = useLocalStorage(
     localStorageKey,
     initialValue
   );
@@ -29,7 +29,7 @@ const TestComponent: React.FC<{
   );
 };
 
-describe("useLocalstorageState", () => {
+describe("useLocalStorage", () => {
   const localStorageKey = "testKey";
 
   afterEach(() => {

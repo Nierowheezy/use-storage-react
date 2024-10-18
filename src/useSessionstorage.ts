@@ -41,7 +41,7 @@ function initialize<S>(key: string, initialState: S) {
   }
 }
 
-type UseSessionstorageStateReturnValue<S> = [
+type UseSessionStorageReturnValue<S> = [
   S,
   Dispatch<SetStateAction<S>>,
   () => void
@@ -49,18 +49,18 @@ type UseSessionstorageStateReturnValue<S> = [
 type BroadcastCustomEvent<S> = CustomEvent<{ newValue: S }>;
 
 /**
- * useSessionstorageState hook
+ * useSessionStorage hook
  * Tracks a value within sessionStorage and updates it
  *
  * @param {string} key - Key of the sessionStorage object
  * @param {any} initialState - Default initial value
  * @returns {[any, Dispatch<SetStateAction<any>>, () => void]}
- * @see https://rooks.vercel.app/docs/useSessionstorageState
+ * @see https://rooks.vercel.app/docs/useSessionStorage
  */
-function useSessionstorageState<S>(
+function useSessionStorage<S>(
   key: string,
   initialState?: S | (() => S)
-): UseSessionstorageStateReturnValue<S> {
+): UseSessionStorageReturnValue<S> {
   const [value, setValue] = useState(() => initialize(key, initialState));
   const isUpdateFromCrossDocumentListener = useRef(false);
   const isUpdateFromWithinDocumentListener = useRef(false);
@@ -101,7 +101,7 @@ function useSessionstorageState<S>(
         );
       };
     } else {
-      console.warn("[useSessionstorageState] window is undefined.");
+      console.warn("[useSessionStorage] window is undefined.");
       return () => {};
     }
   }, [listenToCrossDocumentStorageEvents]);
@@ -135,7 +135,7 @@ function useSessionstorageState<S>(
         );
       };
     } else {
-      console.warn("[useSessionstorageState] document is undefined.");
+      console.warn("[useSessionStorage] document is undefined.");
       return () => {};
     }
   }, [customEventTypeName, listenToCustomEventWithinDocument]);
@@ -149,7 +149,7 @@ function useSessionstorageState<S>(
         );
         document.dispatchEvent(event);
       } else {
-        console.warn("[useSessionstorageState] document is undefined.");
+        console.warn("[useSessionStorage] document is undefined.");
       }
     },
     [customEventTypeName]
@@ -177,4 +177,4 @@ function useSessionstorageState<S>(
   return [value, set, remove];
 }
 
-export { useSessionstorageState };
+export { useSessionStorage };
