@@ -1,51 +1,42 @@
-# use-browser-storage
+# use-storage-react
 
-![npm](https://img.shields.io/npm/v/use-browser-storage) ![npm](https://img.shields.io/npm/dt/use-browser-storage)
+![Version](https://img.shields.io/npm/v/use-storage-react) ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 
-`use-browser-storage` is a React hook library that provides simple and efficient hooks for managing data in both Local Storage and Session Storage. This package streamlines the process of storing, retrieving, and synchronizing data in web applications, enhancing user experience by maintaining state across sessions or page reloads.
+## Overview
+
+`use-storage-react` is a custom React hook that simplifies the management of browser storage (both `localStorage` and `sessionStorage`) with automatic updates across documents and tabs. This package enables efficient state management in React applications, making it easy to persist state between sessions or tabs.
 
 ## Features
 
-- **Local Storage Support**: Easily store and retrieve data that persists across browser sessions.
-- **Session Storage Support**: Manage data that lasts only as long as the page session, ideal for temporary data.
-- **TypeScript Support**: Fully typed hooks for TypeScript users.
-- **Flexible API**: Simple and intuitive API for easy integration.
+- **Cross-Tab Synchronization**: Automatically syncs changes to state across different tabs/windows.
+- **Support for `localStorage` and `sessionStorage`**: Provides easy-to-use hooks for both types of storage.
+- **Customizable**: Easily configure initial values and storage events.
+- **TypeScript Support**: Fully typed with TypeScript for better development experience.
 
 ## Installation
 
-You can install `use-browser-storage` via npm or yarn:
+You can install `use-storage-react` via npm or yarn:
 
 ```bash
-npm install use-browser-storage
+npm install use-storage-react
 ```
 
 or
 
 ```bash
-yarn add use-browser-storage
+yarn add use-storage-react
 ```
 
 ## Usage
 
-### Importing the Hooks
+### Local Storage
 
-You can import the hooks directly from the package:
+To use the local storage hook:
 
-```javascript
-import { useLocalStorage, useSessionStorage } from 'use-browser-storage';
-```
+```jsx
+import { useLocalStorage } from 'use-storage-react';
 
-### useLocalStorage
-
-This hook allows you to interact with the Local Storage API.
-
-#### Example
-
-```javascript
-import React from 'react';
-import { useLocalStorage } from 'use-browser-storage';
-
-const LocalStorageExample = () => {
+const MyComponent = () => {
   const [value, setValue] = useLocalStorage('myKey', 'defaultValue');
 
   return (
@@ -55,24 +46,20 @@ const LocalStorageExample = () => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      <p>Stored Value: {value}</p>
     </div>
   );
 };
 ```
 
-### useSessionStorage
+### Session Storage
 
-This hook allows you to interact with the Session Storage API.
+To use the session storage hook:
 
-#### Example
+```jsx
+import { useSessionStorage } from 'use-storage-react';
 
-```javascript
-import React from 'react';
-import { useSessionStorage } from 'use-browser-storage';
-
-const SessionStorageExample = () => {
-  const [value, setValue] = useSessionStorage('mySessionKey', 'defaultValue');
+const MyComponent = () => {
+  const [value, setValue] = useSessionStorage('myKey', 'defaultValue');
 
   return (
     <div>
@@ -81,7 +68,6 @@ const SessionStorageExample = () => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      <p>Stored Value: {value}</p>
     </div>
   );
 };
@@ -89,30 +75,89 @@ const SessionStorageExample = () => {
 
 ## API
 
-### `useLocalStorage(key: string, initialValue: T)`
+### `useLocalStorage`
 
-- **Parameters**:
-  - `key`: The key under which the value is stored.
-  - `initialValue`: The initial value to set if the key does not exist.
+#### Parameters
 
-- **Returns**: An array containing the current value and a function to update it.
+- **key**: `string` - The key to store the value.
+- **initialValue**: `any` - The initial value to be stored.
 
-### `useSessionStorage(key: string, initialValue: T)`
+#### Returns
 
-- **Parameters**:
-  - `key`: The key under which the value is stored.
-  - `initialValue`: The initial value to set if the key does not exist.
+- An array containing:
+  - The current value stored in local storage.
+  - A function to update the stored value.
 
-- **Returns**: An array containing the current value and a function to update it.
+### `useSessionStorage`
+
+#### Parameters
+
+- **key**: `string` - The key to store the value.
+- **initialValue**: `any` - The initial value to be stored.
+
+#### Returns
+
+- An array containing:
+  - The current value stored in session storage.
+  - A function to update the stored value.
+
+## Examples
+
+### Example of Using `useLocalStorage`
+
+Here's a complete example that uses the `useLocalStorage` hook to create a persistent counter:
+
+```jsx
+import React from 'react';
+import { useLocalStorage } from 'use-storage-react';
+
+const Counter = () => {
+  const [count, setCount] = useLocalStorage('count', 0);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+    </div>
+  );
+};
+```
+
+### Example of Using `useSessionStorage`
+
+Here's a complete example that uses the `useSessionStorage` hook:
+
+```jsx
+import React from 'react';
+import { useSessionStorage } from 'use-storage-react';
+
+const SessionComponent = () => {
+  const [sessionData, setSessionData] = useSessionStorage('sessionData', {});
+
+  return (
+    <div>
+      <button onClick={() => setSessionData({ value: 'Hello, World!' })}>
+        Set Session Data
+      </button>
+      <p>Session Data: {JSON.stringify(sessionData)}</p>
+    </div>
+  );
+};
+```
 
 ## Contributing
 
-Contributions are welcome! Please submit a pull request or open an issue for any bugs or feature requests.
+We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get involved.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Author
 
-Olabode Olaniyi
+**Olabode Olaniyi**
+
+## Links
+
+- [GitHub Repository](https://github.com/Nierowheezy/use-storage-react)
+- [Issues Tracker](https://github.com/Nierowheezy/use-storage-react/issues)
