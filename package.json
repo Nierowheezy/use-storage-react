@@ -1,6 +1,6 @@
 {
   "name": "use-advanced-toggle",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A custom React hook for cycling through multiple states with ease.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,9 +17,9 @@
   "author": "Olaniyi Olabode",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/your-username/use-advanced-toggle/issues"
+    "url": "https://github.com/Nierowheezy/use-advanced-toggle/issues"
   },
-  "homepage": "https://github.com/your-username/use-advanced-toggle#readme",
+  "homepage": "https://github.com/Nierowheezy/use-advanced-toggle",
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^12.0.0",
