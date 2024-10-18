@@ -1,129 +1,118 @@
-# use-advanced-toggle
+# use-browser-storage
 
-`use-advanced-toggle` is a custom React hook that allows you to easily cycle through multiple states. It's designed to enhance the functionality of toggling between values, making it perfect for use cases such as switching themes, controlling animations, or any scenario where you need to cycle through different options.
+![npm](https://img.shields.io/npm/v/use-browser-storage) ![npm](https://img.shields.io/npm/dt/use-browser-storage)
 
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [API](#api)
-- [Testing](#testing)
-- [Contributing](#contributing)
-- [License](#license)
+`use-browser-storage` is a React hook library that provides simple and efficient hooks for managing data in both Local Storage and Session Storage. This package streamlines the process of storing, retrieving, and synchronizing data in web applications, enhancing user experience by maintaining state across sessions or page reloads.
 
 ## Features
 
-- Cycle through multiple states using a simple API.
-- Supports any type of values, including strings and objects.
-- Handles edge cases such as empty states and single states gracefully.
-- Easy to integrate into both TypeScript and JavaScript projects.
+- **Local Storage Support**: Easily store and retrieve data that persists across browser sessions.
+- **Session Storage Support**: Manage data that lasts only as long as the page session, ideal for temporary data.
+- **TypeScript Support**: Fully typed hooks for TypeScript users.
+- **Flexible API**: Simple and intuitive API for easy integration.
 
 ## Installation
 
-To install the `use-advanced-toggle` package, run:
+You can install `use-browser-storage` via npm or yarn:
 
 ```bash
-npm install use-advanced-toggle
+npm install use-browser-storage
 ```
 
-or if you are using Yarn:
+or
 
 ```bash
-yarn add use-advanced-toggle
+yarn add use-browser-storage
 ```
 
 ## Usage
 
-Here’s how to use the `use-advanced-toggle` hook in your React component:
+### Importing the Hooks
+
+You can import the hooks directly from the package:
+
+```javascript
+import { useLocalStorage, useSessionStorage } from 'use-browser-storage';
+```
+
+### useLocalStorage
+
+This hook allows you to interact with the Local Storage API.
+
+#### Example
 
 ```javascript
 import React from 'react';
-import useAdvancedToggle from 'use-advanced-toggle';
+import { useLocalStorage } from 'use-browser-storage';
 
-const MyComponent = () => {
-  const [color, toggleColor] = useAdvancedToggle(['red', 'green', 'blue']);
+const LocalStorageExample = () => {
+  const [value, setValue] = useLocalStorage('myKey', 'defaultValue');
 
   return (
     <div>
-      <p>The current color is: {color}</p>
-      <button onClick={toggleColor}>Toggle Color</button>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
+      <p>Stored Value: {value}</p>
     </div>
   );
 };
+```
 
-export default MyComponent;
+### useSessionStorage
+
+This hook allows you to interact with the Session Storage API.
+
+#### Example
+
+```javascript
+import React from 'react';
+import { useSessionStorage } from 'use-browser-storage';
+
+const SessionStorageExample = () => {
+  const [value, setValue] = useSessionStorage('mySessionKey', 'defaultValue');
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
+      <p>Stored Value: {value}</p>
+    </div>
+  );
+};
 ```
 
 ## API
 
-### `useAdvancedToggle(states: string[])`
+### `useLocalStorage(key: string, initialValue: T)`
 
-#### Parameters
-- `states`: An array of states you want to toggle between (can be strings, numbers, or objects).
+- **Parameters**:
+  - `key`: The key under which the value is stored.
+  - `initialValue`: The initial value to set if the key does not exist.
 
-#### Returns
-- An array where:
-  - The first element is the current state.
-  - The second element is a function to toggle to the next state.
+- **Returns**: An array containing the current value and a function to update it.
 
-#### Example
-```javascript
-const [currentState, toggle] = useAdvancedToggle(['state1', 'state2', 'state3']);
-```
+### `useSessionStorage(key: string, initialValue: T)`
 
-## Testing
+- **Parameters**:
+  - `key`: The key under which the value is stored.
+  - `initialValue`: The initial value to set if the key does not exist.
 
-To run tests for the `use-advanced-toggle` hook, ensure you have the testing dependencies installed:
-
-```bash
-npm install --save-dev @testing-library/react @testing-library/jest-dom
-```
-
-Then you can run your tests using:
-
-```bash
-npm test
-```
-
-### Example Test Case
-
-Here's an example of how you might test your hook:
-
-```javascript
-import { renderHook, act } from '@testing-library/react';
-import useAdvancedToggle from '../hooks/useAdvancedToggle';
-
-describe('useAdvancedToggle', () => {
-  it('should toggle between states', () => {
-    const states = ['red', 'green', 'blue'];
-    const { result } = renderHook(() => useAdvancedToggle(states));
-
-    expect(result.current[0]).toBe('red');
-    act(() => result.current[1]());
-    expect(result.current[0]).toBe('green');
-    act(() => result.current[1]());
-    expect(result.current[0]).toBe('blue');
-    act(() => result.current[1]());
-    expect(result.current[0]).toBe('red');
-  });
-});
-```
+- **Returns**: An array containing the current value and a function to update it.
 
 ## Contributing
 
-Contributions are welcome! If you have suggestions for improvements, feel free to open an issue or submit a pull request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/NewFeature`)
-3. Commit your changes (`git commit -m 'Add some feature'`)
-4. Push to the branch (`git push origin feature/NewFeature`)
-5. Open a pull request
+Contributions are welcome! Please submit a pull request or open an issue for any bugs or feature requests.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
+## Author
 
-Feel free to adjust any sections to better fit your project!
+Olabode Olaniyi
