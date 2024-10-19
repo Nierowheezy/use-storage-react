@@ -3,49 +3,54 @@
 ![Version](https://img.shields.io/npm/v/use-storage-react) ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 
 🗄️ **use-storage-react**  
-React hooks for accessing `localStorage` and `sessionStorage`, with syncing and prefix support. The complete package.  
-[View project on GitHub](https://github.com/Nierowheezy/use-storage-react) | ![Deploy Status](https://img.shields.io/badge/deploy-status-brightgreen)
+React hooks for accessing `localStorage` and `sessionStorage`, with syncing and prefix support.  
+[View project on GitHub](https://github.com/Nierowheezy/use-storage-react)
 
 ## Table of Contents
 
-1. [Overview](#overview)
-2. [Features](#features)
-3. [Installation](#installation)
-4. [Usage](#usage)
-   - [Local Storage](#local-storage)
-   - [Session Storage](#session-storage)
-5. [API](#api)
-   - [`useLocalStorage`](#uselocalstorage)
-   - [`useSessionStorage`](#usesessionstorage)
-6. [Examples](#examples)
-   - [Example of Using `useLocalStorage`](#example-of-using-uselocalstorage)
-   - [Example of Using `useSessionStorage`](#example-of-using-usesessionstorage)
-7. [Testing](#testing)
-8. [Contributing](#contributing)
-9. [License](#license)
-10. [Author](#author)
-11. [Links](#links)
+- [Overview](#overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Basic Usage](#basic-usage)
+  - [TypeScript Usage](#typescript-usage)
+- [API](#api)
+  - [useLocalStorage](#uselocalstorage)
+  - [useSessionStorage](#usesessionstorage)
+- [Advanced Usage / Options](#advanced-usage--options)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
+- [Author](#author)
+- [Links](#links)
 
 ## Overview
 
-`use-storage-react` is a custom React hook that simplifies the management of browser storage (both `localStorage` and `sessionStorage`) with automatic updates across documents and tabs. This package enables efficient state management in React applications, making it easy to persist state between sessions or tabs.
+`use-storage-react` is a custom React hook that simplifies the management of browser storage (both `localStorage` and `sessionStorage`) with automatic updates across documents and tabs. This package provides:
+
+- Hooks for `localStorage` and `sessionStorage` management.
+- Cross-tab synchronization.
+- Customization options for serializers, parsers, and error logging.
 
 ## Features
 
-- **Cross-Tab Synchronization**: Automatically syncs changes to state across different tabs/windows.
-- **Support for `localStorage` and `sessionStorage`**: Provides easy-to-use hooks for both types of storage.
-- **Customizable**: Easily configure initial values and storage events.
-- **TypeScript Support**: Fully typed with TypeScript for a better development experience.
+✅ Persists data to local storage with an interface similar to the React `useState` hook.
+
+✅ Works with any hooks-compatible React version.
+
+✅ Works with SSR (Server-Side Rendering).
+
+✅ Syncs data between components in the same or different browser tabs.
 
 ## Installation
 
-You can install `use-storage-react` via npm or yarn:
+Install via npm:
 
 ```bash
 npm install use-storage-react
 ```
 
-or
+Or with yarn:
 
 ```bash
 yarn add use-storage-react
@@ -53,11 +58,11 @@ yarn add use-storage-react
 
 ## Usage
 
-### Local Storage
+### Basic Usage
 
 To use the local storage hook:
 
-```jsx
+```tsx
 import { useLocalStorage } from 'use-storage-react';
 
 const MyComponent = () => {
@@ -75,11 +80,9 @@ const MyComponent = () => {
 };
 ```
 
-### Session Storage
-
 To use the session storage hook:
 
-```jsx
+```tsx
 import { useSessionStorage } from 'use-storage-react';
 
 const MyComponent = () => {
@@ -97,6 +100,32 @@ const MyComponent = () => {
 };
 ```
 
+### TypeScript Usage
+
+The type of the stored value will be inferred from your default value.
+
+For example:
+
+```ts
+import { useLocalStorage } from 'use-storage-react';
+
+const MyComponent = () => {
+  const [username, setUsername] = useLocalStorage<string>('name', '');
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+    </div>
+  );
+};
+```
+
+You can also specify a custom type by passing it as a generic argument to the hook if necessary.
+
 ## API
 
 ### `useLocalStorage`
@@ -105,11 +134,12 @@ const MyComponent = () => {
 
 - **key**: `string` - The key to store the value.
 - **initialValue**: `any` - The initial value to be stored.
+- **options**: `object` (optional) - Advanced configuration (serializer, parser, logger, etc.).
 
 #### Returns
 
-- An array containing:
-  - The current value stored in local storage.
+- **Array** containing:
+  - The current value from local storage.
   - A function to update the stored value.
 
 ### `useSessionStorage`
@@ -121,116 +151,73 @@ const MyComponent = () => {
 
 #### Returns
 
-- An array containing:
-  - The current value stored in session storage.
+- **Array** containing:
+  - The current value from session storage.
   - A function to update the stored value.
 
-## Examples
+## Advanced Usage / Options
 
-### Example of Using `useLocalStorage`
+The `useLocalStorage` hook accepts an optional third argument to provide more control over its behavior.
 
-Here's a complete example that uses the `useLocalStorage` hook to create a persistent counter:
+### Options Object
 
-```jsx
-import React from 'react';
+- **serializer**: `(obj) => string` - A function to serialize data before storing it in `localStorage`.
+- **parser**: `(str) => any` - A function to parse data retrieved from `localStorage`.
+- **logger**: `(error) => void` - A function to log errors caught within the hook.
+- **syncData**: `boolean` - When set to `false`, cross-context synchronization is disabled.
+
+### Example Usage with Options
+
+```tsx
 import { useLocalStorage } from 'use-storage-react';
 
-const Counter = () => {
-  const [count, setCount] = useLocalStorage('count', 0);
+const options = {
+  serializer: (obj) => JSON.stringify(obj), // Custom serializer
+  parser: (str) => JSON.parse(str),         // Custom parser
+  logger: (error) => console.error(error),  // Custom error logger
+  syncData: false,                          // Disable cross-tab sync
+};
+
+function MyComponent() {
+  const [data, setData] = useLocalStorage('dataKey', { foo: 'bar' }, options);
 
   return (
     <div>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <button onClick={() => setData({ foo: 'baz' })}>Update Data</button>
+      <p>Data: {JSON.stringify(data)}</p>
     </div>
   );
-};
-```
-
-### Example of Using `useSessionStorage`
-
-Here's a complete example that uses the `useSessionStorage` hook:
-
-```jsx
-import React from 'react';
-import { useSessionStorage } from 'use-storage-react';
-
-const SessionComponent = () => {
-  const [sessionData, setSessionData] = useSessionStorage('sessionData', {});
-
-  return (
-    <div>
-      <button onClick={() => setSessionData({ value: 'Hello, World!' })}>
-        Set Session Data
-      </button>
-      <p>Session Data: {JSON.stringify(sessionData)}</p>
-    </div>
-  );
-};
+}
 ```
 
 ## Testing
 
-To run tests for the `use-storage-react` hooks, ensure you have the testing dependencies installed:
+To run tests for the `use-storage-react` hooks, install the testing dependencies:
 
 ```bash
 npm install --save-dev @testing-library/react @testing-library/jest-dom
 ```
 
-Then you can run your tests using:
+Run tests with:
 
 ```bash
 npm test
 ```
 
-### Example Test Case
-
-Here's an example of how you might test your hooks:
-
-```javascript
-import { renderHook, act } from '@testing-library/react-hooks';
-import { useLocalStorage } from '../src/useLocalstorage'; // Adjust the path as necessary
-
-describe('useLocalStorage', () => {
-  const key = 'testKey';
-
-  afterEach(() => {
-    localStorage.removeItem(key); // Clean up localStorage after each test
-  });
-
-  it('should initialize with the default value', () => {
-    const { result } = renderHook(() => useLocalStorage(key, 'defaultValue'));
-    expect(result.current[0]).toBe('defaultValue');
-  });
-
-  it('should update localStorage when state changes', () => {
-    const { result } = renderHook(() => useLocalStorage(key, 'defaultValue'));
-
-    act(() => {
-      result.current[1]('newValue'); // Set new value
-    });
-
-    expect(result.current[0]).toBe('newValue');
-    expect(localStorage.getItem(key)).toBe(JSON.stringify('newValue'));
-  });
-
-  // Additional tests...
-});
-```
-
 ## Contributing
 
-We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get involved.
+If you'd like to contribute, fork the repository and submit a pull request.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## Author
 
-**Olabode Olaniyi**
+Olaniyi Olabode
 
 ## Links
 
 - [GitHub Repository](https://github.com/Nierowheezy/use-storage-react)
-- [Issues Tracker](https://github.com/Nierowheezy/use-storage-react/issues)
+- [npm Package](https://www.npmjs.com/package/use-storage-react)
+

@@ -2,15 +2,18 @@ import { render, act } from "@testing-library/react";
 import { useLocalStorage } from "../src/useLocalstorage"; // Adjust the path as necessary
 import { useEffect } from "react";
 
-// Test component to use the hook
-const TestComponent: React.FC<{
+// Define the props type for the TestComponent
+interface TestComponentProps {
   localStorageKey: string;
-  initialValue?: string;
-}> = ({ localStorageKey, initialValue }) => {
-  const [value, setValue, remove] = useLocalStorage(
-    localStorageKey,
-    initialValue
-  );
+  initialValue?: string; // Make initialValue optional
+}
+
+// Test component to use the hook
+const TestComponent: React.FC<TestComponentProps> = ({
+  localStorageKey,
+  initialValue,
+}) => {
+  const [value, setValue] = useLocalStorage(localStorageKey, initialValue);
 
   useEffect(() => {
     console.log(value);
@@ -22,7 +25,7 @@ const TestComponent: React.FC<{
       <button data-testid="set-value" onClick={() => setValue("newValue")}>
         Set Value
       </button>
-      <button data-testid="remove" onClick={remove}>
+      <button data-testid="remove" onClick={() => setValue(undefined)}>
         Remove Value
       </button>
     </div>

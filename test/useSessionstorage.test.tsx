@@ -1,74 +1,135 @@
-import { renderHook, act } from "@testing-library/react-hooks";
-import { useSessionStorage } from "../src/useSessionstorage"; // Adjust the path accordingly
+import { render, act } from "@testing-library/react";
+import { useSessionStorage } from "../src/useSessionstorage"; // Adjust the path as necessary
+import { useEffect } from "react";
+
+// Define the props type for the TestComponent
+interface TestComponentProps {
+  sessionStorageKey: string;
+  initialValue?: string; // Make initialValue optional
+}
+
+// Test component to use the hook
+const TestComponent: React.FC<TestComponentProps> = ({
+  sessionStorageKey,
+  initialValue,
+}) => {
+  const [value, setValue] = useSessionStorage(sessionStorageKey, initialValue);
+
+  useEffect(() => {
+    console.log(value);
+  }, [value]);
+
+  return (
+    <div>
+      <span data-testid="value">{value}</span>
+      <button data-testid="set-value" onClick={() => setValue("newValue")}>
+        Set Value
+      </button>
+      <button data-testid="remove" onClick={() => setValue(undefined)}>
+        Remove Value
+      </button>
+    </div>
+  );
+};
 
 describe("useSessionStorage", () => {
-  const key = "testKey";
+  const sessionStorageKey = "testKey";
 
-  beforeEach(() => {
-    sessionStorage.clear(); // Clear sessionStorage before each test
+  afterEach(() => {
+    sessionStorage.removeItem(sessionStorageKey); // Clean up sessionStorage after each test
   });
 
-  it("should initialize with the default value", () => {
-    const { result } = renderHook(() => useSessionStorage(key, "defaultValue"));
-    expect(result.current[0]).toBe("defaultValue");
+  test("should initialize with the correct value from sessionStorage", () => {
+    sessionStorage.setItem(sessionStorageKey, JSON.stringify("initialValue"));
+
+    const { getByTestId } = render(
+      <TestComponent
+        sessionStorageKey={sessionStorageKey}
+        initialValue="defaultValue"
+      />
+    );
+
+    expect(getByTestId("value").textContent).toBe("initialValue");
   });
 
-  it("should initialize with value from sessionStorage", () => {
-    sessionStorage.setItem(key, JSON.stringify("storedValue"));
-    const { result } = renderHook(() => useSessionStorage(key, "defaultValue"));
-    expect(result.current[0]).toBe("storedValue");
-  });
-
-  it("should update sessionStorage when state changes", () => {
-    const { result } = renderHook(() => useSessionStorage(key, "defaultValue"));
+  test("should update value in sessionStorage and component when setValue is called", () => {
+    const { getByTestId } = render(
+      <TestComponent
+        sessionStorageKey={sessionStorageKey}
+        initialValue="defaultValue"
+      />
+    );
 
     act(() => {
-      result.current[1]("newValue"); // Set new value
+      getByTestId("set-value").click(); // Simulate button click to set new value
     });
 
-    expect(result.current[0]).toBe("newValue");
-    expect(sessionStorage.getItem(key)).toBe(JSON.stringify("newValue"));
+    expect(getByTestId("value").textContent).toBe("newValue");
+    expect(sessionStorage.getItem(sessionStorageKey)).toBe(
+      JSON.stringify("newValue")
+    );
   });
 
-  it("should remove item from sessionStorage", () => {
-    const { result } = renderHook(() => useSessionStorage(key, "defaultValue"));
+  test("should remove value from sessionStorage when remove is called", () => {
+    sessionStorage.setItem(sessionStorageKey, JSON.stringify("someValue"));
+
+    const { getByTestId } = render(
+      <TestComponent
+        sessionStorageKey={sessionStorageKey}
+        initialValue="defaultValue"
+      />
+    );
 
     act(() => {
-      result.current[2](); // Remove value
+      getByTestId("remove").click(); // Simulate button click to remove value
     });
 
-    expect(result.current[0]).toBe(undefined);
-    expect(sessionStorage.getItem(key)).toBeNull();
+    expect(getByTestId("value").textContent).toBe(""); // Value should be empty after removal
+    expect(sessionStorage.getItem(sessionStorageKey)).toBeNull();
   });
 
-  it("should handle cross-document storage events", () => {
-    const { result } = renderHook(() => useSessionStorage(key, "defaultValue"));
+  test("should listen to cross-document storage events", () => {
+    const { getByTestId } = render(
+      <TestComponent
+        sessionStorageKey={sessionStorageKey}
+        initialValue="defaultValue"
+      />
+    );
 
+    // Simulate a storage event
     act(() => {
-      sessionStorage.setItem(key, JSON.stringify("crossDocumentValue"));
+      sessionStorage.setItem(sessionStorageKey, JSON.stringify("updatedValue"));
       window.dispatchEvent(
         new StorageEvent("storage", {
-          key,
-          newValue: JSON.stringify("crossDocumentValue"),
+          key: sessionStorageKey,
+          newValue: JSON.stringify("updatedValue"),
+          oldValue: JSON.stringify("defaultValue"),
           storageArea: sessionStorage,
         })
-      );
+      ); // Dispatch storage event
     });
 
-    expect(result.current[0]).toBe("crossDocumentValue");
+    expect(getByTestId("value").textContent).toBe("updatedValue");
   });
 
-  it("should handle custom events within the document", () => {
-    const { result } = renderHook(() => useSessionStorage(key, "defaultValue"));
-
-    const event = new CustomEvent(`rooks-${key}-sessionstorage-update`, {
-      detail: { newValue: "customEventValue" },
-    });
+  test("should respond to custom events within the document", () => {
+    const { getByTestId } = render(
+      <TestComponent
+        sessionStorageKey={sessionStorageKey}
+        initialValue="defaultValue"
+      />
+    );
 
     act(() => {
-      document.dispatchEvent(event);
+      const customEvent = new CustomEvent(
+        `rooks-${sessionStorageKey}-sessionstorage-update`,
+        {
+          detail: { newValue: "customEventValue" },
+        }
+      );
+      document.dispatchEvent(customEvent);
     });
 
-    expect(result.current[0]).toBe("customEventValue");
+    expect(getByTestId("value").textContent).toBe("customEventValue");
   });
 });

@@ -1,190 +1,139 @@
-import type { Dispatch, SetStateAction } from "react";
-import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { useFreshRef } from "./useFreshRef";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-// Gets value from localStorage
-function getValueFromLocalStorage(key: string) {
-  if (typeof localStorage === "undefined") {
-    return null;
-  }
+type Serializer<T> = (object: T | undefined) => string;
+type Parser<T> = (val: string) => T | undefined;
+type Setter<T> = React.Dispatch<React.SetStateAction<T | undefined>>;
 
-  const storedValue = localStorage.getItem(key) ?? "null";
-  try {
-    return JSON.parse(storedValue);
-  } catch (error) {
-    console.error(error);
-  }
-
-  return storedValue;
-}
-
-// Saves value to localStorage
-function saveValueToLocalStorage<S>(key: string, value: S) {
-  if (typeof localStorage === "undefined") {
-    return null;
-  }
-
-  if (value === undefined) {
-    return localStorage.removeItem(key);
-  }
-
-  return localStorage.setItem(key, JSON.stringify(value));
-}
-
-/**
- * @param key Key of the localStorage object
- * @param initialState Default initial value
- */
-function initialize<S>(key: string, initialState: S | (() => S)) {
-  const valueLoadedFromLocalStorage = getValueFromLocalStorage(key);
-  if (valueLoadedFromLocalStorage === null) {
-    return typeof initialState === "function"
-      ? (initialState as () => S)()
-      : initialState;
-  } else {
-    return valueLoadedFromLocalStorage;
-  }
-}
-
-type UseLocalStorageReturnValue<S> = [
-  S,
-  Dispatch<SetStateAction<S>>,
-  () => void
-];
-type BroadcastCustomEvent<S> = CustomEvent<{ newValue: S }>;
+type Options<T> = Partial<{
+  serializer: Serializer<T>;
+  parser: Parser<T>;
+  logger: (error: any) => void;
+  syncData: boolean;
+}>;
 
 /**
  * useLocalStorage hook
  * Tracks a value within localStorage and updates it
  *
  * @param {string} key - Key of the localStorage object
- * @param {any} initialState - Default initial value
+ * @param {any} defaultValue - Default initial value
+ * @param {Options} options - Options for serializer, parser, logger, and syncData
  *
+ * @returns {Array} Current value and setter function
  */
-function useLocalStorage<S>(
+function useLocalStorage<T>(
   key: string,
-  initialState?: S | (() => S)
-): UseLocalStorageReturnValue<S> {
-  const [value, setValue] = useState(() => initialize(key, initialState));
-  const isUpdateFromCrossDocumentListener = useRef(false);
-  const isUpdateFromWithinDocumentListener = useRef(false);
-  const customEventTypeName = useMemo(() => {
-    return `rooks-${key}-localstorage-update`;
-  }, [key]);
+  defaultValue?: T,
+  options?: Options<T>
+): [T | undefined, Setter<T>] {
+  const opts = useMemo(() => {
+    return {
+      serializer: JSON.stringify,
+      parser: JSON.parse,
+      logger: console.log,
+      syncData: true,
+      ...options,
+    };
+  }, [options]);
+
+  const { serializer, parser, logger, syncData } = opts;
+
+  const rawValueRef = useRef<string | null>(null);
+
+  const [value, setValue] = useState(() => {
+    if (typeof window === "undefined") return defaultValue;
+
+    try {
+      rawValueRef.current = window.localStorage.getItem(key);
+      const res: T = rawValueRef.current
+        ? parser(rawValueRef.current)
+        : defaultValue;
+      return res;
+    } catch (e) {
+      logger(e);
+      return defaultValue;
+    }
+  });
 
   useEffect(() => {
-    if (
-      !isUpdateFromCrossDocumentListener.current ||
-      !isUpdateFromWithinDocumentListener.current
-    ) {
-      saveValueToLocalStorage<S>(key, value);
-    }
-    // Reset the flags after saving
-    isUpdateFromCrossDocumentListener.current = false;
-    isUpdateFromWithinDocumentListener.current = false;
-  }, [key, value]);
+    if (typeof window === "undefined") return;
 
-  const listenToCrossDocumentStorageEvents = useCallback(
-    (event: StorageEvent) => {
-      if (event.storageArea === localStorage && event.key === key) {
-        try {
-          const newValue = JSON.parse(event.newValue ?? "null");
-          if (value !== newValue) {
-            isUpdateFromCrossDocumentListener.current = true; // Set flag
-            setValue(newValue);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    },
-    [key, value]
-  );
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.addEventListener("storage", listenToCrossDocumentStorageEvents);
-      return () => {
-        window.removeEventListener(
-          "storage",
-          listenToCrossDocumentStorageEvents
+    const updateLocalStorage = () => {
+      if (value !== undefined) {
+        const newValue = serializer(value);
+        const oldValue = rawValueRef.current;
+        rawValueRef.current = newValue;
+        window.localStorage.setItem(key, newValue);
+        window.dispatchEvent(
+          new StorageEvent("storage", {
+            storageArea: window.localStorage,
+            url: window.location.href,
+            key,
+            newValue,
+            oldValue,
+          })
         );
-      };
-    } else {
-      console.warn("[useLocalStorage] window is undefined.");
-      return () => {};
-    }
-  }, [listenToCrossDocumentStorageEvents]);
-
-  const listenToCustomEventWithinDocument = useCallback(
-    (event: Event) => {
-      const customEvent = event as BroadcastCustomEvent<S>;
-      try {
-        const { newValue } = customEvent.detail;
-        if (value !== newValue) {
-          isUpdateFromWithinDocumentListener.current = true; // Set flag
-          setValue(newValue);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    [value]
-  );
-
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      document.addEventListener(
-        customEventTypeName,
-        listenToCustomEventWithinDocument as EventListener
-      );
-      return () => {
-        document.removeEventListener(
-          customEventTypeName,
-          listenToCustomEventWithinDocument as EventListener
-        );
-      };
-    } else {
-      console.warn("[useLocalStorage] document is undefined.");
-      return () => {};
-    }
-  }, [customEventTypeName, listenToCustomEventWithinDocument]);
-
-  const broadcastValueWithinDocument = useCallback(
-    (newValue: S) => {
-      if (typeof document !== "undefined") {
-        const event: BroadcastCustomEvent<S> = new CustomEvent(
-          customEventTypeName,
-          { detail: { newValue } }
-        );
-        document.dispatchEvent(event);
       } else {
-        console.warn("[useLocalStorage] document is undefined.");
+        window.localStorage.removeItem(key);
+        window.dispatchEvent(
+          new StorageEvent("storage", {
+            storageArea: window.localStorage,
+            url: window.location.href,
+            key,
+          })
+        );
       }
-    },
-    [customEventTypeName]
-  );
+    };
 
-  const currentValue = useFreshRef(value, true);
+    try {
+      updateLocalStorage();
+    } catch (e) {
+      logger(e);
+    }
+  }, [value]);
 
-  const set = useCallback(
-    (newValue: SetStateAction<S>) => {
-      const resolvedNewValue =
-        typeof newValue === "function"
-          ? (newValue as (prevState: S) => S)(currentValue.current)
-          : newValue;
-      setValue(resolvedNewValue);
-      broadcastValueWithinDocument(resolvedNewValue);
-    },
-    [broadcastValueWithinDocument, currentValue]
-  );
+  useEffect(() => {
+    if (!syncData) return;
 
-  const remove = useCallback(() => {
-    localStorage.removeItem(key);
-    setValue(undefined); // Resetting value to undefined after removal
-  }, [key]);
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key !== key || e.storageArea !== window.localStorage) return;
 
-  return [value, set, remove];
+      try {
+        if (e.newValue !== rawValueRef.current) {
+          rawValueRef.current = e.newValue;
+          setValue(e.newValue ? parser(e.newValue) : undefined);
+        }
+      } catch (e) {
+        logger(e);
+      }
+    };
+
+    const handleCustomEvent = (event: CustomEvent) => {
+      if (event.detail && event.detail.newValue) {
+        setValue(event.detail.newValue);
+        window.localStorage.setItem(key, serializer(event.detail.newValue));
+      }
+    };
+
+    if (typeof window === "undefined") return;
+
+    window.addEventListener("storage", handleStorageChange);
+    document.addEventListener(
+      `rooks-${key}-localstorage-update`,
+      handleCustomEvent as EventListener // Ensure this is treated as a valid EventListener
+    );
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      document.removeEventListener(
+        `rooks-${key}-localstorage-update`,
+        handleCustomEvent as EventListener
+      );
+    };
+  }, [key, syncData]);
+
+  return [value, setValue];
 }
 
+// Named export
 export { useLocalStorage };
