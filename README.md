@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/npm/v/use-storage-react) ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 
 🗄️ **use-storage-react**  
-React hooks for accessing `localStorage` and `sessionStorage`, with syncing and prefix support.  
+A versatile React hook for managing `localStorage` and `sessionStorage` with cross-tab sync and advanced options.  
 [View project on GitHub](https://github.com/Nierowheezy/use-storage-react)
 
 ## Table of Contents
