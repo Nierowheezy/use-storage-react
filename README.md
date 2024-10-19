@@ -33,11 +33,11 @@ A versatile React hook for managing localStorage and sessionStorage with cross-t
 
 ## Features
 
-- **Seamless Storage Management**: Interact with localStorage and sessionStorage as effortlessly as React state.
-- **Cross-Tab Sync**: Automatically synchronize data between different browser tabs or windows.
-- **Customization**: Use custom serializers, parsers, and error loggers.
-- **TypeScript Support**: Fully typed for improved developer experience.
-- **Works with SSR**: Compatible with server-side rendering.
+- ✅ **Seamless Storage Management**: Interact with localStorage and sessionStorage as effortlessly as React state.
+- ✅ **Cross-Tab Sync**: Automatically synchronize data between different browser tabs or windows.
+- ✅ **Customization**: Use custom serializers, parsers, and error loggers.
+- ✅ **TypeScript Support**: Fully typed for improved developer experience.
+- ✅ **Works with SSR**: Compatible with server-side rendering.
 
 ## Installation
 
