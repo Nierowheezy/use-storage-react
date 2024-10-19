@@ -1,7 +1,7 @@
 {
   "name": "use-storage-react",
-  "version": "1.0.2",
-  "description": "A custom React hook for managing localStorage and sessionStorage with ease, supporting cross-document and cross-tab updates.",
+  "version": "1.0.3",
+  "description": "A React hook for seamless localStorage and sessionStorage management, with support for cross-tab and cross-document synchronization.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
